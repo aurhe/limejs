@@ -134,40 +134,32 @@ lime.Polygon.prototype.hitTest = function(e) {
  * @this {lime.Polygon}
  */
 lime.Renderer.CANVAS.POLYGON.draw = function(context) {
-
-
-    var size = this.getSize(), fill = this.fill_;
-
-    var pt = this.getPoints();
-    
+    var fill = this.getFill(),
+        stroke = this.getStroke(),
+        pt = this.getPoints();
 
     if (pt.length > 2) {
+        context.save();
+        context.beginPath();
+        context.moveTo(pt[0].x, pt[0].y);
+        for (var i = 1; i < pt.length; i++) {
+            context.lineTo(pt[i].x, pt[i].y);
+        }
+        context.closePath();
 
-       context.save();
-       context.beginPath();
-       context.moveTo(pt[0].x, pt[0].y);
+        if (fill !== null) {
+            fill.setCanvasStyle(context, this);
 
-       for (var i = 1; i < pt.length; i++) {
-           context.lineTo(pt[i].x, pt[i].y);
+            if (!(fill instanceof lime.fill.Image)) {
+                context.fill();
+            }
+        }
 
-       }
+        if (stroke !== null) {
+            stroke.setCanvasStyle(context, this);
+            context.stroke();
+        }
 
-       context.closePath();
-       if(fill)
-       context.fillStyle = fill.str;
-
-
-       context.clip();
-
-
-
-    lime.Renderer.CANVAS.SPRITE.draw.call(this, context);
-    
-    if(this.stroke_){
-        context.lineWidth*=2;
-        context.stroke();
-    }
-    
-    context.restore();
+        context.restore();
     }
 };
